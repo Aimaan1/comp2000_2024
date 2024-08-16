@@ -11,9 +11,9 @@ public class GridDrawing extends JPanel {
     private static final int CIRCLE_SIZE = 15; 
     private static final int GAP_THRESHOLD = 15;
     private final Queue<Point> mouseTrail = new LinkedList<>();
-    private Timer retractionTimer;
     private Point lastPoint;
     private Point highlightedCell;
+    private Timer retractionTimer;
 
     public GridDrawing() {
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -32,9 +32,14 @@ public class GridDrawing extends JPanel {
                 if (retractionTimer != null) {
                     retractionTimer.stop();
                 }
-                startRetractionTimer();
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                mouseMoved(e); 
             }
         });
+        startRetractionTimer();
     }
 
     private Point calculateCell(Point p) {
@@ -54,16 +59,12 @@ public class GridDrawing extends JPanel {
 
     private void startRetractionTimer() {
         retractionTimer = new Timer(10, e -> {
-            int pointsToRemove = 5; 
-            for (int i = 0; i < pointsToRemove && !mouseTrail.isEmpty(); i++) {
-                mouseTrail.poll();
-            }
-            repaint();
-
-            if (mouseTrail.isEmpty()) {
-                retractionTimer.stop();
+            if (!mouseTrail.isEmpty()) {
+                mouseTrail.poll(); 
+                repaint();
             }
         });
+        retractionTimer.setRepeats(true);
         retractionTimer.start();
     }
 
@@ -82,7 +83,7 @@ public class GridDrawing extends JPanel {
                 if (highlightedCell != null && highlightedCell.x == col && highlightedCell.y == row) {
                     g.setColor(Color.GRAY);
                     g.fillRect(x, y, cellSize, cellSize);
-                    g.setColor(Color.BLACK); 
+                    g.setColor(Color.BLACK);
                 }
 
                 g.drawRect(x, y, cellSize, cellSize);
